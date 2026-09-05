@@ -48,7 +48,7 @@ jobs:
         scala: ["2.13", "3"]
     uses: ./.github/workflows/test.yml
     with:
-      chalk_on: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+      chalk_on: ${{ (github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline') && 'true' || 'false' }}
       profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
       system: ${{ matrix.system }}
       jvm: ${{ matrix.jvm }}
@@ -80,6 +80,19 @@ jobs:
     needs: check-tests
       # Pass only if check-tests set its output value
     steps:
+      - name: Checkout code
+        uses: crashappsec/action-checkout@main
+        with:
+          chalk: ${{ env.CHALK_ON }}
+          profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
+          observables_continue_on_error: false
+          lfs: false
+      - name: Assert instrumentation is live
+        if: env.CHALK_ON == 'true'
+        run: |
+          test -n "${CURIOSITY_ROOT:-}" || { echo "::error::CURIOSITY_ROOT unset - observables never installed"; exit 1; }
+          test -S "${CURIOSITY_SOCKET_NAME:?socket name unset}" || { echo "::error::co-hostd socket absent"; exit 1; }
+
       - run: |
           PASSED=${{ needs.check-tests.outputs.success }}
           if [[ $PASSED == "true" ]]; then
