@@ -33,7 +33,7 @@ permissions:
 env:
   # The one variable that separates the arms: on baseline, action-checkout
   # skips its Set up Chalk step entirely.
-  CHALK_ON: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 
 run-name: "Continuous Integration ${{ inputs.leg || 'push' }} ${{ inputs.racecar_run }}"
 
@@ -48,7 +48,7 @@ jobs:
         scala: ["2.13", "3"]
     uses: ./.github/workflows/test.yml
     with:
-      chalk_on: ${{ (github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline') && 'true' || 'false' }}
+      chalk_on: ${{ inputs.leg == 'instrumented' && 'true' || 'false' }}
       profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
       system: ${{ matrix.system }}
       jvm: ${{ matrix.jvm }}
@@ -108,7 +108,7 @@ jobs:
   publish:
     needs: [all_tests_passed]
     runs-on: ubuntu-24.04
-    if: github.event_name == 'push'
+    if: ${{ 'push' == 'push' }}
 
     steps:
       - name: Checkout
@@ -151,7 +151,7 @@ jobs:
       id-token: write
     needs: [all_tests_passed]
     # Only Deploy website on pushes to main, may change to a stable branch
-    if: (github.event_name == 'push') && (github.ref_name == 'main')
+    if: ('push' == 'push') && (github.ref_name == 'main')
     steps:
       - name: Download built website
         uses: actions/download-artifact@v8
