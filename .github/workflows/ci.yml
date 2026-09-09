@@ -108,7 +108,7 @@ jobs:
   publish:
     needs: [all_tests_passed]
     runs-on: ubuntu-24.04
-    if: ${{ 'push' == 'push' }}
+    if: ${{ github.event_name == 'push' }}   # racecar: restored — the fold made a don't-publish-except-on-push guard always true
 
     steps:
       - name: Checkout
