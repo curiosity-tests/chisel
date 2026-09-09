@@ -151,7 +151,7 @@ jobs:
       id-token: write
     needs: [all_tests_passed]
     # Only Deploy website on pushes to main, may change to a stable branch
-    if: ('push' == 'push') && (github.ref_name == 'main')
+    if: (github.event_name == 'push') && (github.ref_name == 'main')   # racecar: restored — same fold, on a job holding contents: write
     steps:
       - name: Download built website
         uses: actions/download-artifact@v8
