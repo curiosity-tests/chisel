@@ -14,8 +14,6 @@ on:
   #   - 0400 PDT / 0300 PST
   #   - 0700 EDT / 0600 EST
   # This time is *four* hours after the scheduled build of the firtool Nightly.
-  schedule:
-    - cron: '0 11 * * *'
   # Run on PRs that target the
   pull_request:
     branches:
